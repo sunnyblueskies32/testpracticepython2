@@ -74,7 +74,7 @@ class RequestSchema(BaseModel):
 
 router = APIRouter()
 
-
+#declarations
 rates = [0, 19, 32.5, 37, 45]   # 0%, 19% etc
 
 brackets = [18200,        # first
@@ -91,8 +91,13 @@ medicare_rates = [0, 10, 2]
 medicare_brackets = [21336,        # first
                      26, 668]                # next
 
-#---------------- Public end points -------------- #
 
+net_brackets = [18200,        # first
+                32688,        # next
+                65438,
+                122168]        # next
+
+#---------------- Public end points -------------- #
 
 @app.get("/reverse-words", response_model=str)
 def reverse_words(sentence: str):
@@ -114,7 +119,11 @@ def calc_gross(postTaxSalary: float):
 
 #---------------- Private implementations -------------- #
 
-
+# reverse words in a sentence
+# split, reverse each word, and rejoin
+# Punctuation such as full stops, exclamation marks, question marks,
+# double quotes and commas should remain in postion. 
+# Apostrophes in the middle or end of a word should be reversed in the same way as other characters.
 def _reverse_words(input_str: str):
     try:
         # splitting the sentence on space
@@ -131,8 +140,6 @@ def _reverse_words(input_str: str):
                 for char in range(len(word) - 1, -1, -1):
                     reverse_char_list.append(word[char])
                 rev_words_list.append(''.join(reverse_char_list))
-            #print('rev_words_list ', rev_words_list)
-            # print("".join(rev_words_list))
             final_word_list.append("".join(rev_words_list))
 
         return(" ".join(final_word_list))
@@ -140,7 +147,11 @@ def _reverse_words(input_str: str):
         return JSONResponse(
             status_code=500, content={"error": str(exception)})
 
-
+# sort words in a sentence
+# split, sort each word, and rejoin
+# Punctuation such as full stops, exclamation marks, question marks,
+# double quotes and commas should remain in postion. 
+# Apostrophes in the middle or end of a word should be reversed in the same way as other characters.
 def _sort_words(input_str: str):
     try:
         # splitting the sentence on space
@@ -155,8 +166,6 @@ def _sort_words(input_str: str):
             for word in words_list:
                 sorted_char_list = sorted(word, key=lambda x: x.lower())
                 sort_words_list.append(''.join(sorted_char_list))
-            #print('rev_words_list ', rev_words_list)
-            # print("".join(rev_words_list))
             final_word_list.append("".join(sort_words_list))
 
         return(" ".join(final_word_list))
@@ -164,7 +173,7 @@ def _sort_words(input_str: str):
         return JSONResponse(
             status_code=500, content={"error": str(exception)})
 
-
+#calculate total income tax
 def _calc_tax(income):
     i = bisect(brackets, income)
     print(i)
@@ -182,7 +191,7 @@ def _calc_tax(income):
         total_tax = math.floor(total_tax)
     return total_tax
 
-
+#calculate after tax income
 def _calculate_after_tax_income(annualBaseSalary: float):
     try:
         superannuation = round(((9.5 * annualBaseSalary)/100), 2)
@@ -211,12 +220,7 @@ def _calculate_after_tax_income(annualBaseSalary: float):
             status_code=500, content={"error": str(exception)})
 
 
-net_brackets = [18200,        # first
-                32688,  # next
-                65438,
-                122168]        # next
-
-
+#calculate gross income
 def _calc_gross(netincome: float):
     i = bisect(net_brackets, netincome)
     #print(i)
