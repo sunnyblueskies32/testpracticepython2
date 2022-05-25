@@ -195,7 +195,7 @@ def _calc_tax(income):
 def _calculate_after_tax_income(annualBaseSalary: float):
     try:
         superannuation = round(((9.5 * annualBaseSalary)/100), 2)
-        incometax = (_calc_tax(annualBaseSalary))
+        incometax = (_calc_tax(round(annualBaseSalary)))
         medicare_levy = 0
         if annualBaseSalary < 21336:
             medicare_levy = 0
